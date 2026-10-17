@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahanyele Guesthouse Staff Tracker</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #f5f7fb;
+    --bg-accent: #eef3fb;
+    --surface: rgba(255,255,255,0.78);
+    --surface-strong: rgba(255,255,255,0.92);
+    --surface-soft: #f8fbff;
+    --text: #182235;
+    --muted: #667085;
+    --line: rgba(20, 33, 61, 0.08);
+
+    --navy: #234a7a;
+    --blue: #4f7db8;
+    --sky: #dce9f8;
+    --teal: #5aa6a0;
+    --green: #63a375;
+    --amber: #d8a34d;
+    --red: #d46a6a;
+    --slate: #8a97ab;
+
+    --red-soft: #f9e3e3;
+    --amber-soft: #fbf1dc;
+    --green-soft: #e5f3e8;
+    --blue-soft: #e4eefb;
+    --teal-soft: #dff2f0;
+    --slate-soft: #edf2f7;
+
+    --shadow-lg: 0 18px 50px rgba(30, 41, 59, 0.08);
+    --shadow-md: 0 10px 30px rgba(30, 41, 59, 0.06);
+    --shadow-sm: 0 4px 14px rgba(30, 41, 59, 0.05);
+
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    padding:32px;
+    font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(79,125,184,.10), transparent 25%),
+      radial-gradient(circle at top right, rgba(90,166,160,.10), transparent 22%),
+      linear-gradient(180deg, #fbfcfe 0%, var(--bg) 100%);
+  }
+
+  .wrap{
+    max-width:1240px;
+    margin:0 auto;
+  }
+
+  .hero{
+    margin-bottom:24px;
+    padding:28px 30px;
+    border-radius:var(--radius-xl);
+    background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(245,249,255,.78));
+    border:1px solid rgba(79,125,184,.12);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after{
+    content:"";
+    position:absolute;
+    right:-40px;
+    top:-40px;
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(79,125,184,.14), transparent 65%);
+    pointer-events:none;
+  }
+
+  h1{
+    margin:0 0 10px;
+    font-size:40px;
+    line-height:1.02;
+    letter-spacing:-0.05em;
+    font-weight:800;
+    color:#18314d;
+  }
+
+  .sub{
+    margin:0;
+    max-width:760px;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--muted);
+    font-weight:500;
+  }
+
+  .top-grid,.summary-grid,.two-grid,.form-grid{
+    display:grid;
+    gap:18px;
+    margin-bottom:22px;
+  }
+
+  .top-grid,.summary-grid{
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  }
+
+  .two-grid{
+    grid-template-columns:1.12fr .88fr;
+    align-items:start;
+  }
+
+  .form-grid{
+    grid-template-columns:1.25fr .95fr .95fr .95fr auto;
+    align-items:end;
+  }
+
+  .card{
+    background: linear-gradient(180deg, var(--surface-strong), var(--surface));
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    box-shadow:var(--shadow-md);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .metric{
+    position:relative;
+    overflow:hidden;
+    min-height:126px;
+  }
+
+  .metric::before{
+    content:"";
+    position:absolute;
+    inset:auto -16px -18px auto;
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    background: rgba(255,255,255,.36);
+    pointer-events:none;
+  }
+
+  .metric.red{background:linear-gradient(135deg,#e97f7f,#cf6262); color:#fff;}
+  .metric.amber{background:linear-gradient(135deg,#e8b55d,#cf9543); color:#fff;}
+  .metric.blue{background:linear-gradient(135deg,#5a86bf,#426fa9); color:#fff;}
+  .metric.green{background:linear-gradient(135deg,#75b087,#5d9a70); color:#fff;}
+
+  .metric .label{
+    color:rgba(255,255,255,.82);
+    margin-bottom:10px;
+  }
+
+  .metric .alert-value, .metric .big{
+    color:#fff;
+  }
+
+  .label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:#73829a;
+    margin-bottom:12px;
+  }
+
+  .big{
+    font-size:32px;
+    line-height:1.05;
+    font-weight:800;
+    letter-spacing:-.04em;
+    color:#18314d;
+  }
+
+  .section-title{
+    margin:0 0 16px;
+    font-size:20px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#203754;
+  }
+
+  .mini,.note,.footer-note{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.55;
+  }
+
+  .progress-item{
+    padding:14px 0;
+  }
+
+  .progress-item:not(:last-child){
+    border-bottom:1px solid rgba(20,33,61,.06);
+  }
+
+  .progress-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    margin-bottom:10px;
+    font-size:14px;
+    font-weight:700;
+    color:#26405f;
+  }
+
+  .progress-wrap{
+    width:100%;
+    height:12px;
+    background:#edf2f7;
+    border-radius:999px;
+    overflow:hidden;
+  }
+
+  .progress-bar{
+    height:100%;
+    border-radius:999px;
+    transition:width .35s ease;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,.35);
+  }
+
+  .green{background:linear-gradient(90deg,#78b78a,#5d9a70)}
+  .blue{background:linear-gradient(90deg,#7fa5d2,#4f7db8)}
+  .orange{background:linear-gradient(90deg,#e6ba74,#d79c43)}
+  .redbar{background:linear-gradient(90deg,#e69191,#cf6262)}
+
+  input,select,button{
+    width:100%;
+    padding:13px 14px;
+    border-radius:14px;
+    font-family: inherit;
+    font-size:14px;
+  }
+
+  input,select{
+    border:1px solid rgba(79,125,184,.14);
+    background:rgba(255,255,255,.95);
+    color:var(--text);
+    box-shadow:var(--shadow-sm);
+  }
+
+  input::placeholder{color:#94a3b8}
+
+  input:focus,select:focus{
+    outline:none;
+    border-color:rgba(79,125,184,.42);
+    box-shadow:0 0 0 4px rgba(79,125,184,.08);
+  }
+
+  button{
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    letter-spacing:.01em;
+    background:linear-gradient(135deg,#5a86bf,#426fa9);
+    color:#fff;
+    box-shadow:0 12px 22px rgba(66,111,169,.18);
+    transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+  }
+
+  button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 24px rgba(66,111,169,.22);
+  }
+
+  button.secondary{
+    background:linear-gradient(180deg,#ffffff,#f6f9fd);
+    color:#27405f;
+    border:1px solid rgba(79,125,184,.14);
+    box-shadow:var(--shadow-sm);
+  }
+
+  button.danger{
+    background:linear-gradient(135deg,#e27f7f,#cf6262);
+    box-shadow:0 12px 20px rgba(207,98,98,.16);
+  }
+
+  .staff-list{
+    display:grid;
+    gap:14px;
+  }
+
+  .staff-item{
+    display:grid;
+    grid-template-columns:1.15fr .8fr 1fr 1fr .95fr 1fr;
+    gap:14px;
+    align-items:center;
+    padding:18px;
+    border:1px solid rgba(79,125,184,.10);
+    border-radius:20px;
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.86));
+    box-shadow:var(--shadow-sm);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+
+  .staff-item:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 24px rgba(30,41,59,.08);
+  }
+
+  .name{
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    color:#1d3553;
+    margin-bottom:3px;
+  }
+
+  .status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    width:max-content;
+    padding:8px 12px;
+    border-radius:999px;
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+
+  .status.on{background:linear-gradient(135deg,#76b688,#5d9a70)}
+  .status.off{background:linear-gradient(135deg,#9aa7b8,#7d8998)}
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:max-content;
+    padding:6px 11px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+
+  .pill.red{background:var(--red-soft); color:#b95454}
+  .pill.amber{background:var(--amber-soft); color:#b47f2f}
+  .pill.green{background:var(--green-soft); color:#4e835d}
+  .pill.blue{background:var(--blue-soft); color:#486eaa}
+
+  .actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .small-btn{
+    padding:9px 11px;
+    font-size:12px;
+    border-radius:11px;
+  }
+
+  .tablewrap{
+    overflow:auto;
+    border:1px solid rgba(79,125,184,.10);
+    border-radius:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,251,255,.86));
+  }
+
+  table{
+    width:100%;
+    min-width:560px;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  th,td{
+    padding:14px 14px;
+    text-align:left;
+  }
+
+  thead th{
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.13em;
+    color:#7b889a;
+    background:rgba(240,245,252,.85);
+    border-bottom:1px solid rgba(79,125,184,.10);
+  }
+
+  tbody tr:not(:last-child) td{
+    border-bottom:1px solid rgba(20,33,61,.05);
+  }
+
+  tbody tr:hover td{
+    background:#fbfdff;
+  }
+
+  @media (max-width: 980px){
+    body{padding:18px}
+    .two-grid,.form-grid,.staff-item{grid-template-columns:1fr}
+    .hero{padding:22px}
+    h1{font-size:32px}
+  }
+
+  .accordion-card{
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .accordion-toggle{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    border: none;
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,249,255,.92));
+    color: #203754;
+    cursor: pointer;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    box-shadow: none;
+  }
+
+  .accordion-toggle:hover{
+    transform: none;
+    box-shadow: none;
+    opacity: .98;
+  }
+
+  .accordion-copy{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .accordion-copy small{
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .accordion-icon{
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue-soft);
+    color: #486eaa;
+    font-size: 18px;
+    font-weight: 800;
+    transition: transform .22s ease, background .22s ease;
+  }
+
+  .accordion-card.open .accordion-icon{
+    transform: rotate(180deg);
+    background: var(--teal-soft);
+    color: #3c7f7a;
+  }
+
+  .accordion-content{
+    display: none;
+    padding: 0 20px 20px 20px;
+    animation: accordionFade .22s ease;
+  }
+
+  .accordion-card.open .accordion-content{
+    display: block;
+  }
+
+  @keyframes accordionFade{
+    from{opacity:0; transform: translateY(-6px);}
+    to{opacity:1; transform: translateY(0);}
+  }
+
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+  <h1>Mahanyele Guesthouse Staff Tracker</h1>
+  <div class="sub">Same information from the first version, rebuilt in a cleaner, more polished layout. Snapshot date: <span id="snapshotDate">-</span>.</div>
+
+  <div class="top-grid">
+    <div class="card metric red">
+      <div class="alert-title">CURRENTLY OFF</div>
+      <div class="alert-value" id="currentOffBar">-</div>
+    </div>
+    <div class="card metric blue">
+      <div class="alert-title">NEXT OFF</div>
+      <div class="alert-value" id="nextOffBar">-</div>
+    </div>
+    <div class="card metric amber" id="nextPayMetricCard">
+      <div class="alert-title">NEXT PAY</div>
+      <div class="alert-value" id="nextPayBar">-</div>
+    </div>
+    <div class="card metric green" id="happyPayMetricCard">
+      <div class="alert-title">HAPPY PAY</div>
+      <div class="alert-value" id="happyPayBar">-</div>
+    </div>
+  </div>
+
+  <div class="two-grid">
+    <div class="card">
+      <div class="section-title">Pay Countdown</div>
+      <div id="paymentPriorityBox"></div>
+      <div class="note">Green means a pay date is close. After 08:00 on pay day, the next cycle is shown.</div>
+    </div>
+    <div class="card">
+      <div class="section-title">Current Off Countdown</div>
+      <div class="progress-item">
+        <div class="progress-head">
+          <span id="offCountdownName">-</span>
+          <span id="offCountdownDays">-</span>
+        </div>
+        <div class="mini">Return date: <span id="offReturnDate">-</span></div>
+        <div class="progress-wrap">
+          <div class="progress-bar green" id="offCountdownBar" style="width:100%"></div>
+        </div>
+        <div class="mini" id="offCountdownMessage">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="card">
+      <div class="label">Current Off</div>
+      <div class="big" id="summaryCurrentOff">-</div>
+    </div>
+    <div class="card">
+      <div class="label">Off Next</div>
+      <div class="big" id="summaryNextOff">-</div>
+    </div>
+    <div class="card">
+      <div class="label">Next Pay Date</div>
+      <div class="big" id="summaryNextPayDate">-</div>
+    </div>
+    <div class="card">
+      <div class="label">Staff Count</div>
+      <div class="big" id="staffCount">0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Add Staff</div>
+    <div class="form-grid">
+      <input id="staffName" placeholder="Name">
+      <select id="staffStatus">
+        <option value="REGULAR">Regular rotation staff</option>
+        <option value="HAPPY">Fortnight Sunday-cycle staff</option>
+      </select>
+      <input id="staffNextPay" type="date">
+      <input id="staffOffReturn" type="date" disabled>
+      <button onclick="addStaff()">Add Staff</button>
+    </div>
+    <div class="note"><span id="autoLogicNote">Use the anchor date only. For regular staff, enter a known off-start Monday. For Happy, enter a known Sunday pay date on his 14-day cycle.</span></div>
+  </div>
+
+
+  <div class="card accordion-card" id="staffAccordion">
+    <button class="accordion-toggle" type="button" onclick="toggleStaffAccordion()" aria-expanded="false" aria-controls="staffAccordionContent" id="staffAccordionButton">
+      <span class="accordion-copy">
+        <span>Staff Records</span>
+        <small>Full staff list</small>
+      </span>
+      <span class="accordion-icon">⌄</span>
+    </button>
+    <div class="accordion-content" id="staffAccordionContent">
+      <div class="staff-list" id="staffList"></div>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'guesthouse_tracker_auto_v3';
+
+function todayStart(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+const NOW = new Date();
+const TODAY = todayStart();
+const PAY_CUTOFF_HOUR = 8;
+const MS_DAY = 24 * 60 * 60 * 1000;
+
+const defaultData = {
+  regularStaff: [
+    { name: 'Mavis', offStartAnchor: '2026-04-13' },
+    { name: 'Lucky', offStartAnchor: '2026-03-16' },
+    { name: 'Bester', offStartAnchor: '2026-03-23' },
+    { name: 'Theo', offStartAnchor: '2026-03-30' },
+    { name: 'Allenia', offStartAnchor: '2026-04-06' }
+  ],
+  happy: { name: 'Happy', payAnchor: '2026-03-29' }
+};
+
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function parseISO(iso){ return new Date(iso + 'T00:00:00'); }
+function toISO(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function addDays(dateOrIso, days){
+  const d = typeof dateOrIso === 'string' ? parseISO(dateOrIso) : new Date(dateOrIso);
+  d.setDate(d.getDate() + days);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function diffDays(dateStr){
+  if(!dateStr) return null;
+  return Math.round((parseISO(dateStr) - TODAY) / MS_DAY);
+}
+function isSameIsoDay(dateStr){
+  return !!dateStr && toISO(parseISO(dateStr)) === toISO(TODAY);
+}
+function isPayAlertActive(dateStr){
+  if(!dateStr) return false;
+  if(!isSameIsoDay(dateStr)) return false;
+  return NOW.getHours() < PAY_CUTOFF_HOUR;
+}
+function formatDate(dateStr){
+  if(!dateStr) return '-';
+  return parseISO(dateStr).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function formatLiveDate(date){
+  return new Date(date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function dayName(dateStr){
+  if(!dateStr) return '-';
+  return parseISO(dateStr).toLocaleDateString('en-GB',{weekday:'long'});
+}
+function countdownTone(days){
+  if(days === null) return {klass:'blue', pill:'blue', text:'No date'};
+  if(days < 0) return {klass:'redbar', pill:'red', text:'Passed'};
+  if(days === 0) return {klass:'redbar', pill:'red', text:'Today'};
+  if(days === 1) return {klass:'redbar', pill:'red', text:'Tomorrow'};
+  if(days <= 3) return {klass:'orange', pill:'amber', text: days + ' days left'};
+  return {klass:'green', pill:'green', text: days + ' days left'};
+}
+function payCountdownTone(days){
+  if(days === null) return {klass:'blue', pill:'blue', metric:'blue', text:'No date'};
+  if(days < 0) return {klass:'redbar', pill:'red', metric:'red', text:'Passed'};
+  if(days === 0) return {klass:'green', pill:'green', metric:'green', text:'Due before 08:00'};
+  if(days === 1) return {klass:'green', pill:'green', metric:'green', text:'Tomorrow'};
+  if(days <= 3) return {klass:'green', pill:'green', metric:'green', text: days + ' days left'};
+  if(days <= 7) return {klass:'orange', pill:'amber', metric:'amber', text: days + ' days left'};
+  return {klass:'blue', pill:'blue', metric:'blue', text: days + ' days left'};
+}
+function setMetricTone(cardId, tone){
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  card.classList.remove('red','amber','blue','green');
+  card.classList.add((tone && tone.metric) || 'blue');
+}
+function getData(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(!saved) return clone(defaultData);
+  try {
+    const parsed = JSON.parse(saved);
+    if(parsed && parsed.regularStaff && parsed.happy) return parsed;
+  } catch(e){}
+  return clone(defaultData);
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function resetName(name){
+  return String(name || '').trim().replace(/\s+/g, ' ');
+}
+function sameName(a,b){
+  return resetName(a).toLowerCase() === resetName(b).toLowerCase();
+}
+
+function latestCycleStart(anchorIso){
+  const anchor = parseISO(anchorIso);
+  let diff = Math.floor((TODAY - anchor) / MS_DAY);
+  let cycles = Math.floor(diff / 35);
+  let cycleStart = addDays(anchor, cycles * 35);
+  if(cycleStart > TODAY) cycleStart = addDays(cycleStart, -35);
+  return cycleStart;
+}
+function upcomingPayFromAnchor(offStartAnchorIso){
+  const latest = latestCycleStart(offStartAnchorIso);
+  const candidates = [];
+  for(const shift of [-35, 0, 35, 70]){
+    const base = addDays(latest, shift);
+    candidates.push(base);
+    candidates.push(addDays(base, 22));
+  }
+  const upcoming = candidates
+    .map(d => toISO(d))
+    .filter(iso => {
+      const date = parseISO(iso);
+      if(date > TODAY) return true;
+      if(date < TODAY) return false;
+      return isPayAlertActive(iso);
+    })
+    .sort()[0];
+  return upcoming || null;
+}
+function computeRegularStaff(staff){
+  const latest = latestCycleStart(staff.offStartAnchor);
+  const offStart = toISO(latest);
+  const offReturn = toISO(addDays(latest, 7));
+  const nextOff = toISO(addDays(latest, 35));
+  const status = TODAY >= latest && TODAY < addDays(latest, 7) ? 'OFF' : 'ON';
+  const nextPay = upcomingPayFromAnchor(staff.offStartAnchor);
+  return {
+    name: staff.name,
+    kind: 'regular',
+    status,
+    currentOffStart: status === 'OFF' ? offStart : '',
+    offReturn: status === 'OFF' ? offReturn : '',
+    nextOff,
+    nextPay,
+    tag: status === 'OFF' ? 'Current off' : 'Rotation staff',
+    offStartAnchor: staff.offStartAnchor
+  };
+}
+function computeHappy(happy){
+  const anchor = parseISO(happy.payAnchor);
+  let diff = Math.floor((TODAY - anchor) / MS_DAY);
+  let steps = Math.floor(diff / 14);
+  let payDate = addDays(anchor, steps * 14);
+  if(payDate < TODAY) payDate = addDays(payDate, 14);
+  if(toISO(payDate) === toISO(TODAY) && NOW.getHours() >= PAY_CUTOFF_HOUR) payDate = addDays(payDate, 14);
+  return {
+    name: happy.name,
+    kind: 'happy',
+    status: 'ON',
+    currentOffStart: '',
+    offReturn: '',
+    nextOff: '',
+    nextPay: toISO(payDate),
+    tag: 'Fortnight Sunday cycle',
+    payAnchor: happy.payAnchor
+  };
+}
+function computeViewData(raw){
+  const staff = raw.regularStaff.map(computeRegularStaff);
+  staff.push(computeHappy(raw.happy));
+
+  const currentOff = staff.find(s => s.status === 'OFF' && s.kind === 'regular') || null;
+  const nextOff = staff
+    .filter(s => s.kind === 'regular')
+    .sort((a,b) => parseISO(a.nextOff) - parseISO(b.nextOff))[0] || null;
+
+  const soonestPay = staff
+    .filter(s => s.nextPay)
+    .sort((a,b) => parseISO(a.nextPay) - parseISO(b.nextPay))[0] || null;
+
+  const marked = staff.map(s => {
+    if(currentOff && sameName(s.name, currentOff.name)) return {...s, badge: 'Off now', badgeTone: 'red'};
+    if(nextOff && sameName(s.name, nextOff.name) && s.kind === 'regular' && s.status !== 'OFF') return {...s, badge: 'Next off', badgeTone: 'blue'};
+    if(s.kind === 'happy') return {...s, badge: '14-day Sunday pay', badgeTone: 'green'};
+    return {...s, badge: 'On duty', badgeTone: 'green'};
+  });
+
+  return { staff: marked, currentOff, nextOff, soonestPay };
+}
+function renderSummary(view){
+  const happy = view.staff.find(s => s.kind === 'happy');
+  const soonestPayDays = view.soonestPay ? diffDays(view.soonestPay.nextPay) : null;
+  const happyPayDays = happy?.nextPay ? diffDays(happy.nextPay) : null;
+  document.getElementById('currentOffBar').textContent = view.currentOff ? view.currentOff.name : '-';
+  document.getElementById('nextOffBar').textContent = view.nextOff ? `${formatDate(view.nextOff.nextOff)} • ${view.nextOff.name}` : '-';
+  document.getElementById('nextPayBar').textContent = view.soonestPay ? `${formatDate(view.soonestPay.nextPay)} • ${view.soonestPay.name}` : '-';
+  document.getElementById('happyPayBar').textContent = happy?.nextPay ? formatDate(happy.nextPay) : '-';
+  setMetricTone('nextPayMetricCard', payCountdownTone(soonestPayDays));
+  setMetricTone('happyPayMetricCard', payCountdownTone(happyPayDays));
+
+  document.getElementById('summaryCurrentOff').textContent = view.currentOff ? view.currentOff.name : '-';
+  document.getElementById('summaryNextOff').textContent = view.nextOff ? view.nextOff.name : '-';
+  document.getElementById('summaryNextPayDate').textContent = view.soonestPay ? formatDate(view.soonestPay.nextPay) : '-';
+  document.getElementById('staffCount').textContent = view.staff.length;
+}
+function renderPaymentPriority(view){
+  const rows = view.staff
+    .filter(s => s.nextPay)
+    .sort((a,b) => parseISO(a.nextPay) - parseISO(b.nextPay))
+    .slice(0,5);
+
+  document.getElementById('paymentPriorityBox').innerHTML = rows.map(s => {
+    const days = diffDays(s.nextPay);
+    const tone = payCountdownTone(days);
+    const width = days === null ? 0 : Math.max(12, Math.min(100, 100 - Math.max(days, 0) * 10));
+    return `<div class="progress-item">
+      <div class="progress-head"><span>${s.name}</span><span>${formatDate(s.nextPay)} (${dayName(s.nextPay)})</span></div>
+      <div class="progress-wrap"><div class="progress-bar ${tone.klass}" style="width:${width}%"></div></div>
+      <div class="mini">${tone.text}</div>
+    </div>`;
+  }).join('');
+}
+function renderOffCountdown(view){
+  const off = view.currentOff;
+  const bar = document.getElementById('offCountdownBar');
+  if(!off || !off.offReturn){
+    document.getElementById('offCountdownName').textContent = '-';
+    document.getElementById('offCountdownDays').textContent = 'No one currently off';
+    document.getElementById('offReturnDate').textContent = '-';
+    document.getElementById('offCountdownMessage').textContent = '-';
+    bar.style.width = '0%';
+    bar.className = 'progress-bar blue';
+    return;
+  }
+
+  const days = diffDays(off.offReturn);
+  const tone = countdownTone(days);
+  const safeDays = Math.max(0, Math.min(7, days));
+  const percent = (safeDays / 7) * 100;
+
+  document.getElementById('offCountdownName').textContent = off.name;
+  document.getElementById('offCountdownDays').textContent = days < 0 ? 'Return date passed' : days + ' day(s) left';
+  document.getElementById('offReturnDate').textContent = formatDate(off.offReturn);
+  document.getElementById('offCountdownMessage').textContent = days < 0 ? 'Please review the anchor dates' : tone.text;
+  bar.style.width = percent + '%';
+  bar.className = 'progress-bar ' + tone.klass;
+}
+function renderStaffList(view){
+  document.getElementById('staffList').innerHTML = view.staff.map((s, index) => {
+    const payDays = diffDays(s.nextPay);
+    const payTone = payCountdownTone(payDays).pill;
+    const nextOffDays = s.nextOff ? diffDays(s.nextOff) : null;
+    const nextOffTone = countdownTone(nextOffDays).pill;
+    const returnText = s.status === 'OFF' && s.offReturn ? formatDate(s.offReturn) : '-';
+    const nextOffText = s.nextOff ? formatDate(s.nextOff) : '-';
+    const anchorInfo = s.kind === 'happy'
+      ? `<div class="mini">Pay anchor: ${formatDate(s.payAnchor)}</div>`
+      : `<div class="mini">Off-start anchor: ${formatDate(s.offStartAnchor)}</div>`;
+
+    return `<div class="staff-item">
+      <div>
+        <div class="name">${s.name}</div>
+        <div class="mini">${s.tag || 'Staff record'}</div>
+        ${anchorInfo}
+      </div>
+      <div>
+        <div class="mini">Status</div>
+        <span class="status ${s.status === 'OFF' ? 'off' : 'on'}">${s.status}</span>
+      </div>
+      <div>
+        <div class="mini">Next Pay Day</div>
+        <div>${s.nextPay ? formatDate(s.nextPay) : '-'}</div>
+        <div class="mini"><span class="pill ${payTone}">${payDays === null ? 'No date' : payDays < 0 ? 'Passed' : payDays === 0 ? 'Due before 08:00' : payDays + ' day(s)'}</span></div>
+      </div>
+      <div>
+        <div class="mini">Next Off Day</div>
+        <div>${nextOffText}</div>
+        <div class="mini">${s.nextOff ? `<span class="pill ${nextOffTone}">${nextOffDays === 0 ? 'Today' : nextOffDays + ' day(s)'}</span>` : ''}</div>
+      </div>
+      <div>
+        <div class="mini">Return Date</div>
+        <div>${returnText}</div>
+        <div class="mini">${s.badge ? `<span class="pill ${s.badgeTone}">${s.badge}</span>` : ''}</div>
+      </div>
+      <div class="actions">
+        <button class="small-btn secondary" onclick="editStaff(${index})">Edit</button>
+        <button class="small-btn danger" onclick="removeStaff(${index})">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function render(){
+  const raw = getData();
+  const view = computeViewData(raw);
+  renderSummary(view);
+  renderPaymentPriority(view);
+  renderOffCountdown(view);
+  renderStaffList(view);
+
+  const snapshot = document.getElementById('snapshotDate');
+  if(snapshot){
+    snapshot.textContent = formatLiveDate(TODAY);
+  }
+
+  const note = document.getElementById('autoLogicNote');
+  if(note){
+    note.textContent = 'Automatic logic: regular staff go off for 7 days, return on Monday, are paid on Tuesday after the first fortnight, and are paid again on Monday when going off. Happy is paid every 14 days on a Sunday cycle.';
+  }
+}
+function addStaff(){
+  const raw = getData();
+  const name = resetName(document.getElementById('staffName').value);
+  const anchor = document.getElementById('staffNextPay').value;
+  const type = document.getElementById('staffStatus').value;
+
+  if(!name || !anchor){
+    alert('Enter at least the name and anchor date.');
+    return;
+  }
+  const exists = raw.regularStaff.some(s => sameName(s.name, name)) || sameName(raw.happy.name, name);
+  if(exists){
+    alert('That staff member already exists.');
+    return;
+  }
+
+  if(type === 'HAPPY'){
+    raw.happy = { name, payAnchor: anchor };
+  } else {
+    raw.regularStaff.push({ name, offStartAnchor: anchor });
+  }
+
+  saveData(raw);
+  document.getElementById('staffName').value = '';
+  document.getElementById('staffStatus').value = 'REGULAR';
+  document.getElementById('staffNextPay').value = '';
+  document.getElementById('staffOffReturn').value = '';
+  render();
+}
+function editStaff(index){
+  const raw = getData();
+  const view = computeViewData(raw);
+  const staff = view.staff[index];
+  if(!staff) return;
+
+  const name = prompt('Edit name', staff.name);
+  if(name === null) return;
+  const type = prompt('Type: REGULAR or HAPPY', staff.kind === 'happy' ? 'HAPPY' : 'REGULAR');
+  if(type === null) return;
+  const upperType = String(type).trim().toUpperCase();
+  const anchorLabel = upperType === 'HAPPY' ? 'Pay anchor date (YYYY-MM-DD)' : 'Off-start anchor Monday (YYYY-MM-DD)';
+  const currentAnchor = upperType === 'HAPPY' ? (staff.payAnchor || staff.nextPay) : (staff.offStartAnchor || staff.nextOff);
+  const anchor = prompt(anchorLabel, currentAnchor || '');
+  if(anchor === null) return;
+
+  if(staff.kind === 'happy'){
+    raw.happy = { name: resetName(name), payAnchor: anchor };
+  } else {
+    const idx = raw.regularStaff.findIndex(s => sameName(s.name, staff.name));
+    if(idx === -1) return;
+    raw.regularStaff[idx] = { name: resetName(name), offStartAnchor: anchor };
+  }
+
+  if(staff.kind !== 'happy' && upperType === 'HAPPY'){
+    const idx = raw.regularStaff.findIndex(s => sameName(s.name, staff.name));
+    if(idx !== -1) raw.regularStaff.splice(idx, 1);
+    raw.happy = { name: resetName(name), payAnchor: anchor };
+  } else if(staff.kind === 'happy' && upperType !== 'HAPPY'){
+    raw.happy = clone(defaultData.happy);
+    raw.regularStaff.push({ name: resetName(name), offStartAnchor: anchor });
+  }
+
+  saveData(raw);
+  render();
+}
+function removeStaff(index){
+  const raw = getData();
+  const view = computeViewData(raw);
+  const staff = view.staff[index];
+  if(!staff) return;
+  if(!confirm('Remove ' + staff.name + '?')) return;
+
+  if(staff.kind === 'happy'){
+    raw.happy = clone(defaultData.happy);
+  } else {
+    raw.regularStaff = raw.regularStaff.filter(s => !sameName(s.name, staff.name));
+  }
+  saveData(raw);
+  render();
+}
+render();
+</script>
+
+<script>
+function toggleStaffAccordion() {
+  const panel = document.getElementById('staffAccordion');
+  const button = document.getElementById('staffAccordionButton');
+  const isOpen = panel.classList.toggle('open');
+  button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+</script>
+
+</body>
+</html>
